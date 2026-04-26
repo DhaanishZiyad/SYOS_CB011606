@@ -74,6 +74,8 @@ public class FinalizeCheckoutUseCase {
         Money amountDue = bill.getFinalTotal();
         PaymentResult paymentResult = paymentStrategy.pay(amountDue, cashTendered);
 
+//        bill.recordPayment(paymentResult.getTendered(), paymentResult.getChange());
+
         // 3) Save bill (and later bill line items inside JdbcBillRepository)
         billRepository.save(bill);
 

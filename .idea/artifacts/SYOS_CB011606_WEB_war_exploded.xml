@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="SYOS_CB011606_WEB:war exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded</output-path>
+    <root id="root">
+      <element id="module-output" name="SYOS_CB011606" />
+      <element id="dir-copy" path="$PROJECT_DIR$/src/main/webapp" />
+    </root>
+  </artifact>
+</component>
