@@ -34,7 +34,7 @@ public class GenerateReportsUseCase {
         return new StockReport(reportRepository.fetchStockBatchReport());
     }
 
-    public BillReport generateBillReport(LocalDate date) {
-        return new BillReport(billRepository.findByDate(date));
+    public BillReport generateBillReport() {
+        return new BillReport(billRepository.findAll());
     }
 }

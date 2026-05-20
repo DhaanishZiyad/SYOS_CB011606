@@ -24,13 +24,42 @@ public class Bill {
         this.date = date;
     }
 
-    public void addItem(BillLineItem item) {
-        items.add(item);
-        total = total.add(item.getLineTotal());
+    public void addItem(BillLineItem newItem) {
+
+        for (int i = 0; i < items.size(); i++) {
+            BillLineItem existing = items.get(i);
+
+            if (existing.getItem().getCode().getValue()
+                    .equals(newItem.getItem().getCode().getValue())) {
+
+                int updatedQty = existing.getQuantity().getValue()
+                        + newItem.getQuantity().getValue();
+
+                BillLineItem updatedItem = new BillLineItem(
+                        existing.getItem(),
+                        new com.sypos.domain.valueobjects.Quantity(updatedQty)
+                );
+
+                items.set(i, updatedItem);
+                recalculateTotal();
+                return;
+            }
+        }
+
+        items.add(newItem);
+        recalculateTotal();
     }
 
     public Money getTotal() {
         return total;
+    }
+
+    public void setTotal(Money total) {
+        this.total = total;
+    }
+
+    public void setDiscount(Money discount) {
+        this.discount = discount;
     }
 
     public List<BillLineItem> getItems() {
@@ -68,5 +97,19 @@ public class Bill {
 
     public Money getChangeAmount() {
         return changeAmount;
+    }
+
+    public void removeItem(int index) {
+        if (index >= 0 && index < items.size()) {
+            items.remove(index);
+            recalculateTotal();
+        }
+    }
+
+    private void recalculateTotal() {
+        total = new Money(java.math.BigDecimal.ZERO);
+        for (BillLineItem item : items) {
+            total = total.add(item.getLineTotal());
+        }
     }
 }

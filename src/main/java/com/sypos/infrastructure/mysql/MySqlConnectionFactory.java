@@ -15,8 +15,13 @@ public class MySqlConnectionFactory {
         this.username = username;
         this.password = password;
     }
-
     public Connection getConnection() throws SQLException {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver"); // 👈 THIS IS THE FIX
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("MySQL Driver not found", e);
+        }
+
         return DriverManager.getConnection(url, username, password);
     }
 }

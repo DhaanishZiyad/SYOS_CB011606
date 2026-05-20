@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ArrayList;
 
 public class FakeBillRepository implements BillRepository {
 
@@ -35,5 +36,10 @@ public class FakeBillRepository implements BillRepository {
         return bills.values().stream()
                 .filter(b -> b.getDate().equals(date))
                 .toList();
+    }
+
+    @Override
+    public List<Bill> findAll() {
+        return new ArrayList<>();
     }
 }

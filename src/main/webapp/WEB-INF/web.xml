@@ -4,15 +4,4 @@
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
                              https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
-
-    <servlet>
-        <servlet-name>PosServlet</servlet-name>
-        <servlet-class>com.sypos.web.PosServlet</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>PosServlet</servlet-name>
-        <url-pattern>/pos</url-pattern>
-    </servlet-mapping>
-
 </web-app>

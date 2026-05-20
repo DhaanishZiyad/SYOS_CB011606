@@ -10,6 +10,9 @@ import com.sypos.domain.entities.Bill;
 import com.sypos.domain.valueobjects.ItemCode;
 import com.sypos.domain.valueobjects.Money;
 import com.sypos.domain.valueobjects.Quantity;
+import com.sypos.application.dto.reports.BillReport;
+import com.sypos.application.ports.BillRepository;
+import com.sypos.application.ports.ItemRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,6 +27,8 @@ public class PosController {
     private final FinalizeCheckoutUseCase finalizeCheckoutUseCase;
     private final GenerateReportsUseCase generateReportsUseCase;
     private final ReportExporter reportExporter;
+    private final BillRepository billRepository;
+    private final ItemRepository itemRepository;
 
 
     public PosController(
@@ -31,13 +36,17 @@ public class PosController {
             AddItemToBillUseCase addItemToBillUseCase,
             FinalizeCheckoutUseCase finalizeCheckoutUseCase,
             GenerateReportsUseCase generateReportsUseCase,
-            ReportExporter reportExporter
+            ReportExporter reportExporter,
+            BillRepository billRepository,
+            ItemRepository itemRepository
     ) {
         this.createBillUseCase = Objects.requireNonNull(createBillUseCase);
         this.addItemToBillUseCase = Objects.requireNonNull(addItemToBillUseCase);
         this.finalizeCheckoutUseCase = Objects.requireNonNull(finalizeCheckoutUseCase);
         this.generateReportsUseCase = Objects.requireNonNull(generateReportsUseCase);
         this.reportExporter = Objects.requireNonNull(reportExporter);
+        this.billRepository = billRepository;
+        this.itemRepository = itemRepository;
     }
 
     public Bill startNewSale() {
@@ -46,6 +55,10 @@ public class PosController {
 
     public void addItem(Bill bill, String code, int qty) {
         addItemToBillUseCase.addItem(bill, new ItemCode(code), new Quantity(qty));
+    }
+
+    public void removeItem(Bill bill, int index) {
+        bill.removeItem(index);
     }
 
     public CheckoutResult checkout(Bill bill, BigDecimal tendered) {
@@ -93,7 +106,7 @@ public class PosController {
     }
 
     public void showBillReport(LocalDate date) {
-        var report = generateReportsUseCase.generateBillReport(date);
+        var report = generateReportsUseCase.generateBillReport();
 
         System.out.println("Bill Report for: " + date);
         if (report.getBills().isEmpty()) {
@@ -107,6 +120,10 @@ public class PosController {
                     + " tendered=" + b.getCashTendered().getAmount()
                     + " change=" + b.getChangeAmount().getAmount());
         }
+    }
+
+    public BillReport generateBillReport() {
+        return generateReportsUseCase.generateBillReport();
     }
 
     public Path exportDailySalesPdf(LocalDate date) {
@@ -130,7 +147,16 @@ public class PosController {
     }
 
     public Path exportBillReportPdf(LocalDate date) {
-        var report = generateReportsUseCase.generateBillReport(date);
+        var report = generateReportsUseCase.generateBillReport();
         return reportExporter.exportBillReport(date, report);
+    }
+
+    public Bill findBillBySerial(int serial) {
+        return billRepository.findBySerial(serial)
+                .orElseThrow(() -> new RuntimeException("Bill not found"));
+    }
+
+    public java.util.List<com.sypos.domain.entities.Item> getAllItems() {
+        return itemRepository.findAll();
     }
 }

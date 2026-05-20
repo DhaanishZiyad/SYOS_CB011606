@@ -4,6 +4,7 @@ import com.sypos.application.ports.BillRepository;
 import com.sypos.domain.entities.Bill;
 import com.sypos.domain.entities.BillLineItem;
 import com.sypos.infrastructure.mysql.MySqlConnectionFactory;
+import com.sypos.domain.valueobjects.Money;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -106,13 +107,115 @@ public class JdbcBillRepository implements BillRepository {
 
     @Override
     public Optional<Bill> findBySerial(int serialNumber) {
-        // Implement later when you want to re-print a saved bill by serial number.
-        return Optional.empty();
+
+        String billSql = """
+        SELECT serial_no, bill_date, full_total, discount, cash_tendered, change_amount
+        FROM bills
+        WHERE serial_no = ?
+    """;
+
+        String itemsSql = """
+        SELECT item_code, item_name, quantity, line_total
+        FROM bill_items
+        WHERE bill_serial_no = ?
+    """;
+
+        try (Connection con = connectionFactory.getConnection()) {
+
+            Bill bill = null;
+
+            // 🔹 Load bill header
+            try (PreparedStatement ps = con.prepareStatement(billSql)) {
+                ps.setInt(1, serialNumber);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        bill = new Bill(
+                                rs.getInt("serial_no"),
+                                rs.getDate("bill_date").toLocalDate()
+                        );
+
+                        bill.setTotal(new Money(rs.getBigDecimal("full_total")));
+                        bill.setDiscount(new Money(rs.getBigDecimal("discount")));
+
+                        bill.recordPayment(
+                                new Money(rs.getBigDecimal("cash_tendered")),
+                                new Money(rs.getBigDecimal("change_amount"))
+                        );
+                    }
+                }
+            }
+
+            if (bill == null) return Optional.empty();
+
+            // 🔹 Load items
+            try (PreparedStatement ps = con.prepareStatement(itemsSql)) {
+                ps.setInt(1, serialNumber);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+
+                        var item = new com.sypos.domain.entities.Item(
+                                new com.sypos.domain.valueobjects.ItemCode(rs.getString("item_code")),
+                                rs.getString("item_name"),
+                                new Money(rs.getBigDecimal("line_total")) // ⚠️ approximation
+                        );
+
+                        var qty = new com.sypos.domain.valueobjects.Quantity(rs.getInt("quantity"));
+
+                        bill.addItem(new BillLineItem(item, qty));
+                    }
+                }
+            }
+
+            return Optional.of(bill);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch bill " + serialNumber, e);
+        }
     }
 
     @Override
     public List<Bill> findByDate(LocalDate date) {
         // Implement later if you want bill report from this repository (or keep in ReportRepository).
         return List.of();
+    }
+
+    @Override
+    public List<Bill> findAll() {
+        List<Bill> bills = new java.util.ArrayList<>();
+
+        String sql = """
+        SELECT serial_no, bill_date, full_total, discount, final_total, cash_tendered, change_amount
+        FROM bills
+        ORDER BY serial_no DESC
+    """;
+
+        try (Connection con = connectionFactory.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                int serial = rs.getInt("serial_no");
+                LocalDate date = rs.getDate("bill_date").toLocalDate();
+
+                Bill bill = new Bill(serial, date);
+
+                bill.setTotal(new Money(rs.getBigDecimal("full_total")));
+                bill.setDiscount(new Money(rs.getBigDecimal("discount")));
+
+                bill.recordPayment(
+                        new Money(rs.getBigDecimal("cash_tendered")),
+                        new Money(rs.getBigDecimal("change_amount"))
+                );
+
+                bills.add(bill);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch all bills", e);
+        }
+
+        return bills;
     }
 }

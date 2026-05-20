@@ -50,7 +50,7 @@ public class PosCliApplication {
         var exporter = new PdfReportExporter(Path.of("reports"));
 
         // --- Controller + Presenter
-        var controller = new PosController(createBillUC, addItemUC, finalizeUC, reportsUC, exporter);
+        var controller = new PosController(createBillUC, addItemUC, finalizeUC, reportsUC, exporter, billRepo);
         var presenter = new ConsoleBillPresenter();
 
         // --- CLI Loop

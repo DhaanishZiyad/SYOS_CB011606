@@ -5,6 +5,7 @@ import com.sypos.domain.entities.Bill;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
 
 public interface BillRepository {
 
@@ -15,4 +16,6 @@ public interface BillRepository {
     Optional<Bill> findBySerial(int serialNumber);
 
     List<Bill> findByDate(LocalDate date);
+
+    List<Bill> findAll();
 }

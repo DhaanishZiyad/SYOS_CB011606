@@ -3,6 +3,7 @@ package com.sypos.web;
 import com.sypos.adapters.controllers.PosController;
 import com.sypos.config.ApplicationConfig;
 import com.sypos.domain.entities.Bill;
+import com.sypos.concurrency.SystemMetrics;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -36,17 +37,32 @@ public class PosServlet extends HttpServlet {
             session.setAttribute("currentBill", newBill);
             resp.sendRedirect("pos-ui.jsp");
             return;
+        } else if ("viewBills".equals(action)) {
+            var report = controller.generateBillReport();
+
+            req.setAttribute("billReport", report);
+            req.getRequestDispatcher("bills.jsp").forward(req, resp);
+        } else if ("viewBillDetails".equals(action)) {
+            int serial = Integer.parseInt(req.getParameter("serial"));
+
+            Bill bill = controller.findBillBySerial(serial);
+
+            req.setAttribute("bill", bill);
+            req.getRequestDispatcher("bill-details.jsp").forward(req, resp);
+            return;
+        } else if ("inventory".equals(action)) {
+
+            var items = controller.getAllItems();
+
+            req.setAttribute("items", items);
+
+            req.getRequestDispatcher("inventory.jsp")
+                    .forward(req, resp);
+
+            return;
         }
 
-        resp.setContentType("text/html");
-        resp.getWriter().println("""
-                <html>
-                <body>
-                    <h1>POS System Running 🚀</h1>
-                    <a href="pos?action=start">Start New Sale</a>
-                </body>
-                </html>
-                """);
+        resp.sendRedirect("index.jsp");
     }
 
     @Override
@@ -54,36 +70,93 @@ public class PosServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String action = req.getParameter("action");
+        SystemMetrics.totalHttpRequests.incrementAndGet();
         HttpSession session = req.getSession();
         Bill bill = (Bill) session.getAttribute("currentBill");
 
-        if (bill == null) {
-            resp.sendRedirect("pos?action=error&msg=NoActiveSession");
-            return;
-        }
-
         try {
-            if ("addItem".equals(action)) {
+            if ("simulateCheckout".equals(action)) {
+
+                Bill simulatedBill = controller.startNewSale();
+
+                controller.addItem(simulatedBill, "MILK001", 2);
+
+                java.math.BigDecimal tendered =
+                        new java.math.BigDecimal("5000");
+
+                com.sypos.concurrency.CheckoutQueueManager
+                        .getQueue()
+                        .put(
+                                new com.sypos.concurrency.CheckoutTask(
+                                        simulatedBill,
+                                        tendered
+                                )
+                        );
+                SystemMetrics.totalQueuedBills.incrementAndGet();
+
+                System.out.println(
+                        "Added bill "
+                                + simulatedBill.getSerialNumber()
+                                + " to queue"
+                );
+
+                resp.getWriter().println(
+                        "Queued simulated checkout for bill "
+                                + simulatedBill.getSerialNumber()
+                );
+
+                return;
+            } else if (bill == null) {
+                resp.sendRedirect("pos?action=error&msg=NoActiveSession");
+                return;
+
+
+            } else if ("addItem".equals(action)) {
                 String code = req.getParameter("itemCode");
                 int qty = Integer.parseInt(req.getParameter("quantity"));
 
                 // This calls AddItemToBillUseCase via the controller
                 controller.addItem(bill, code, qty);
                 resp.sendRedirect("pos-ui.jsp");
+            } else if ("removeItem".equals(action)) {
+                int index = Integer.parseInt(req.getParameter("index"));
 
+                controller.removeItem(bill, index);
+                resp.sendRedirect("pos-ui.jsp");
             } else if ("checkout".equals(action)) {
                 java.math.BigDecimal tendered = new java.math.BigDecimal(req.getParameter("tendered"));
 
                 // This calls FinalizeCheckoutUseCase which updates DB and Inventory
-                var result = controller.checkout(bill, tendered);
+                com.sypos.concurrency.CheckoutQueueManager
+                        .getQueue()
+                        .put(
+                                new com.sypos.concurrency.CheckoutTask(
+                                        bill,
+                                        tendered
+                                )
+                        );
+                SystemMetrics.totalQueuedBills.incrementAndGet();
 
-                session.setAttribute("lastResult", result);
-                session.removeAttribute("currentBill"); // Clear the session bill
-                resp.sendRedirect("receipt.jsp");
+                session.removeAttribute("currentBill");
+
+                resp.setContentType("text/html");
+
+                resp.getWriter().println("""
+                    <html>
+                    <body>
+                        <h2>Checkout queued successfully ✅</h2>
+                        <p>Your checkout request is being processed.</p>
+                
+                        <a href="index.jsp">Back Home</a>
+                    </body>
+                    </html>
+                """);
             }
         } catch (Exception e) {
             req.setAttribute("error", e.getMessage());
             req.getRequestDispatcher("pos-ui.jsp").forward(req, resp);
         }
     }
+
+
 }

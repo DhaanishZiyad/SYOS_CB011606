@@ -79,7 +79,7 @@ class GenerateReportsUseCaseTest {
                 new GenerateReportsUseCase(new FakeReportRepository(), billRepo);
 
         LocalDate date = LocalDate.now();
-        BillReport report = uc.generateBillReport(date);
+        BillReport report = uc.generateBillReport();
 
         assertNotNull(report);
         assertTrue(report.getBills().isEmpty());

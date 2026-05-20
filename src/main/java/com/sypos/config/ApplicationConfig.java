@@ -7,6 +7,9 @@ import com.sypos.domain.inventory.*;
 import com.sypos.domain.payment.*;
 import com.sypos.infrastructure.mysql.MySqlConnectionFactory;
 import com.sypos.infrastructure.pdf.PdfReportExporter;
+import com.sypos.application.ports.ReportExporter;
+import com.sypos.infrastructure.pdf.DummyReportExporter;
+import com.sypos.concurrency.CheckoutWorker;
 import java.nio.file.Path;
 
 
@@ -47,17 +50,31 @@ public class ApplicationConfig {
         var generateReportsUseCase = new GenerateReportsUseCase(reportRepo, billRepo);
 
         // Exporter
-        var reportExporter = new PdfReportExporter(
-                Path.of("reports")
-        );
+        ReportExporter reportExporter = new DummyReportExporter();
 
         // Controller
-        return new PosController(
+        PosController controller = new PosController(
                 createBillUseCase,
                 addItemUseCase,
                 checkoutUseCase,
                 generateReportsUseCase,
-                reportExporter
+                reportExporter,
+                billRepo,
+                itemRepo
         );
+
+        for (int i = 1; i <= 3; i++) {
+
+            Thread worker = new Thread(
+                    new CheckoutWorker(controller)
+            );
+
+            worker.setName("Checkout-Worker-" + i);
+
+            worker.setDaemon(true);
+            worker.start();
+        }
+
+        return controller;
     }
 }

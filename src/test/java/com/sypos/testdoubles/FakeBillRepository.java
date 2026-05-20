@@ -39,4 +39,9 @@ public class FakeBillRepository implements BillRepository {
         out.sort(Comparator.comparingInt(Bill::getSerialNumber));
         return out;
     }
+
+    @Override
+    public List<Bill> findAll() {
+        return new ArrayList<>();
+    }
 }

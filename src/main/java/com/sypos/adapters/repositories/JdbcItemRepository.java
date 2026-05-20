@@ -47,4 +47,47 @@ public class JdbcItemRepository implements ItemRepository {
             throw new RuntimeException("Failed to fetch item by code: " + code, e);
         }
     }
+
+    @Override
+    public java.util.List<Item> findAll() {
+
+        String sql = """
+            SELECT code, name, unit_price
+            FROM items
+            ORDER BY name
+            """;
+
+        try (Connection con = connectionFactory.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            java.util.List<Item> items =
+                    new java.util.ArrayList<>();
+
+            while (rs.next()) {
+
+                String code = rs.getString("code");
+                String name = rs.getString("name");
+
+                java.math.BigDecimal unitPrice =
+                        rs.getBigDecimal("unit_price");
+
+                items.add(
+                        new Item(
+                                new ItemCode(code),
+                                name,
+                                new Money(unitPrice)
+                        )
+                );
+            }
+
+            return items;
+
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Failed to fetch all items",
+                    e
+            );
+        }
+    }
 }
