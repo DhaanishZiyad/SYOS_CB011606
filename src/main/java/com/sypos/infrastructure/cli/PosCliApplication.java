@@ -35,7 +35,7 @@ public class PosCliApplication {
         // --- Repositories
         var itemRepo = new JdbcItemRepository(factory);
         var billRepo = new JdbcBillRepository(factory);
-        var invRepo = new JdbcInventoryRepository(factory);
+        var inventoryRepo = new JdbcInventoryRepository(factory);
         var reportRepo = new JdbcReportRepository(factory, 100); // target shelf level = 100
 
         // --- Use cases
@@ -45,12 +45,12 @@ public class PosCliApplication {
         var batchConsumer = new BatchConsumer(new ExpiryAwareFifoPolicy());
         var paymentStrategy = new CashPaymentStrategy();
 
-        var finalizeUC = new FinalizeCheckoutUseCase(invRepo, billRepo, batchConsumer, paymentStrategy);
+        var finalizeUC = new FinalizeCheckoutUseCase(inventoryRepo, billRepo, batchConsumer, paymentStrategy);
         var reportsUC = new GenerateReportsUseCase(reportRepo, billRepo);
         var exporter = new PdfReportExporter(Path.of("reports"));
 
         // --- Controller + Presenter
-        var controller = new PosController(createBillUC, addItemUC, finalizeUC, reportsUC, exporter, billRepo);
+        var controller = new PosController(createBillUC, addItemUC, finalizeUC, reportsUC, exporter, billRepo, itemRepo, inventoryRepo);
         var presenter = new ConsoleBillPresenter();
 
         // --- CLI Loop

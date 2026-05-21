@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Map;
 
 public class JdbcInventoryRepository implements InventoryRepository {
 
@@ -120,6 +121,127 @@ public class JdbcInventoryRepository implements InventoryRepository {
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to save modified stock batches", e);
+        }
+    }
+
+    @Override
+    public void saveNewBatch(StockBatch batch) {
+
+        String sql = """
+            INSERT INTO stock_batches
+            (
+                item_code,
+                purchase_date,
+                expiry_date,
+                received_qty,
+                remaining_qty
+            )
+            VALUES (?, ?, ?, ?, ?)
+            """;
+
+        try (Connection con =
+                     connectionFactory.getConnection();
+
+             PreparedStatement ps =
+                     con.prepareStatement(sql)) {
+
+            ps.setString(
+                    1,
+                    batch.getItemCode().getValue()
+            );
+
+            ps.setDate(
+                    2,
+                    java.sql.Date.valueOf(
+                            batch.getPurchaseDate()
+                    )
+            );
+
+            ps.setDate(
+                    3,
+                    java.sql.Date.valueOf(
+                            batch.getExpiryDate()
+                    )
+            );
+
+            ps.setInt(
+                    4,
+                    batch.getQuantity().getValue()
+            );
+
+            ps.setInt(
+                    5,
+                    batch.getQuantity().getValue()
+            );
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Failed to save new stock batch",
+                    e
+            );
+        }
+    }
+
+    @Override
+    public Map<String, Integer> getAllShelfStock() {
+
+        String sql = """
+            SELECT item_code, quantity
+            FROM shelf_stock
+            """;
+
+        try (Connection con = connectionFactory.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            java.util.Map<String, Integer> stockMap =
+                    new java.util.HashMap<>();
+
+            while (rs.next()) {
+
+                stockMap.put(
+                        rs.getString("item_code"),
+                        rs.getInt("quantity")
+                );
+            }
+
+            return stockMap;
+
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Failed to fetch shelf stock",
+                    e
+            );
+        }
+    }
+
+    @Override
+    public void deleteBatch(long batchId) {
+
+        String sql =
+                "DELETE FROM stock_batches WHERE id = ?";
+
+        try (
+                Connection con =
+                        connectionFactory.getConnection();
+
+                PreparedStatement ps =
+                        con.prepareStatement(sql)
+        ) {
+
+            ps.setLong(1, batchId);
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Failed to delete batch",
+                    e
+            );
         }
     }
 }

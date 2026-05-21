@@ -54,10 +54,43 @@ public class PosServlet extends HttpServlet {
 
             var items = controller.getAllItems();
 
+            var stockMap =
+                    controller.getAllShelfStock();
+
             req.setAttribute("items", items);
+
+            req.setAttribute(
+                    "stockMap",
+                    stockMap
+            );
 
             req.getRequestDispatcher("inventory.jsp")
                     .forward(req, resp);
+
+            return;
+        } else if ("viewBatches".equals(action)) {
+
+            String itemCode =
+                    req.getParameter("itemCode");
+
+            var batches =
+                    controller.getBatchesForItem(
+                            itemCode
+                    );
+
+            req.setAttribute(
+                    "itemCode",
+                    itemCode
+            );
+
+            req.setAttribute(
+                    "batches",
+                    batches
+            );
+
+            req.getRequestDispatcher(
+                    "batches.jsp"
+            ).forward(req, resp);
 
             return;
         }
@@ -103,6 +136,89 @@ public class PosServlet extends HttpServlet {
                 resp.getWriter().println(
                         "Queued simulated checkout for bill "
                                 + simulatedBill.getSerialNumber()
+                );
+
+                return;
+            } else if ("restock".equals(action)) {
+
+                String itemCode =
+                        req.getParameter("itemCode");
+
+                int quantity =
+                        Integer.parseInt(
+                                req.getParameter("quantity")
+                        );
+
+                java.time.LocalDate purchaseDate =
+                        java.time.LocalDate.parse(
+                                req.getParameter("purchaseDate")
+                        );
+
+                java.time.LocalDate expiryDate =
+                        java.time.LocalDate.parse(
+                                req.getParameter("expiryDate")
+                        );
+
+                controller.restockItem(
+                        itemCode,
+                        quantity,
+                        purchaseDate,
+                        expiryDate
+                );
+
+                resp.sendRedirect(
+                        "pos?action=inventory"
+                );
+
+                return;
+            } else if ("removeBatch".equals(action)) {
+
+                long batchId =
+                        Long.parseLong(
+                                req.getParameter("batchId")
+                        );
+
+                String itemCode =
+                        req.getParameter("itemCode");
+
+                int remainingQty =
+                        Integer.parseInt(
+                                req.getParameter("remainingQty")
+                        );
+
+                controller.removeBatch(
+                        batchId,
+                        itemCode,
+                        remainingQty
+                );
+
+                resp.sendRedirect(
+                        "pos?action=viewBatches&itemCode="
+                                + itemCode
+                );
+
+                return;
+            }else if ("addInventoryItem".equals(action)) {
+
+                String code =
+                        req.getParameter("code");
+
+                String name =
+                        req.getParameter("name");
+
+                java.math.BigDecimal unitPrice =
+                        new java.math.BigDecimal(
+                                req.getParameter("unitPrice")
+                        );
+
+                controller.createItem(
+                        code,
+                        name,
+                        unitPrice
+                );
+
+                resp.sendRedirect(
+                        "pos?action=inventory"
                 );
 
                 return;

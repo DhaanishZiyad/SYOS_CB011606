@@ -60,7 +60,8 @@ public class ApplicationConfig {
                 generateReportsUseCase,
                 reportExporter,
                 billRepo,
-                itemRepo
+                itemRepo,
+                inventoryRepo
         );
 
         for (int i = 1; i <= 3; i++) {

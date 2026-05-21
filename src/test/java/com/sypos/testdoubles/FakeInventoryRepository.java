@@ -45,7 +45,22 @@ public class FakeInventoryRepository implements InventoryRepository {
         // objects are already mutated in-memory; this mimics persistence
     }
 
+    @Override
+    public void saveNewBatch(StockBatch batch) {
+
+    }
+
+    @Override
+    public void deleteBatch(long batchId) {
+
+    }
+
     public ShelfStock getShelf(ItemCode code) {
         return shelf.get(code.getValue());
+    }
+
+    @Override
+    public Map<String, Integer> getAllShelfStock() {
+        return new HashMap<>();
     }
 }

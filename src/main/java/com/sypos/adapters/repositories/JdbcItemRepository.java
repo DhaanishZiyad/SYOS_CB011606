@@ -90,4 +90,47 @@ public class JdbcItemRepository implements ItemRepository {
             );
         }
     }
+
+    @Override
+    public void save(Item item) {
+
+        String sql = """
+            INSERT INTO items
+            (code, name, unit_price)
+            VALUES (?, ?, ?)
+            """;
+
+        try (
+                Connection con =
+                        connectionFactory.getConnection();
+
+                PreparedStatement ps =
+                        con.prepareStatement(sql)
+        ) {
+
+            ps.setString(
+                    1,
+                    item.getCode().getValue()
+            );
+
+            ps.setString(
+                    2,
+                    item.getName()
+            );
+
+            ps.setBigDecimal(
+                    3,
+                    item.getUnitPrice().getAmount()
+            );
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Failed to save item",
+                    e
+            );
+        }
+    }
 }

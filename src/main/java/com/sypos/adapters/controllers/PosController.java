@@ -13,11 +13,16 @@ import com.sypos.domain.valueobjects.Quantity;
 import com.sypos.application.dto.reports.BillReport;
 import com.sypos.application.ports.BillRepository;
 import com.sypos.application.ports.ItemRepository;
+import com.sypos.application.ports.InventoryRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Map;
+import java.util.List;
 import java.nio.file.Path;
+import com.sypos.domain.entities.Item;
+import com.sypos.domain.entities.StockBatch;
 
 
 public class PosController {
@@ -29,6 +34,7 @@ public class PosController {
     private final ReportExporter reportExporter;
     private final BillRepository billRepository;
     private final ItemRepository itemRepository;
+    private final InventoryRepository inventoryRepository;
 
 
     public PosController(
@@ -38,7 +44,8 @@ public class PosController {
             GenerateReportsUseCase generateReportsUseCase,
             ReportExporter reportExporter,
             BillRepository billRepository,
-            ItemRepository itemRepository
+            ItemRepository itemRepository,
+            InventoryRepository inventoryRepository
     ) {
         this.createBillUseCase = Objects.requireNonNull(createBillUseCase);
         this.addItemToBillUseCase = Objects.requireNonNull(addItemToBillUseCase);
@@ -47,6 +54,7 @@ public class PosController {
         this.reportExporter = Objects.requireNonNull(reportExporter);
         this.billRepository = billRepository;
         this.itemRepository = itemRepository;
+        this.inventoryRepository = inventoryRepository;
     }
 
     public Bill startNewSale() {
@@ -63,6 +71,112 @@ public class PosController {
 
     public CheckoutResult checkout(Bill bill, BigDecimal tendered) {
         return finalizeCheckoutUseCase.finalizeSale(bill, new Money(tendered));
+    }
+
+    public void createItem(
+            String code,
+            String name,
+            java.math.BigDecimal unitPrice
+    ) {
+
+        Item item =
+                new Item(
+                        new ItemCode(code),
+                        name,
+                        new Money(unitPrice)
+                );
+
+        itemRepository.save(item);
+    }
+
+    public void restockItem(
+            String itemCode,
+            int quantity,
+            LocalDate purchaseDate,
+            LocalDate expiryDate
+    ) {
+
+        var code =
+                new com.sypos.domain.valueobjects.ItemCode(
+                        itemCode
+                );
+
+        // --- Update shelf stock
+
+        var shelfStock =
+                inventoryRepository
+                        .findShelfStock(code)
+                        .orElse(
+                                new com.sypos.domain.entities.ShelfStock(
+                                        code,
+                                        new com.sypos.domain.valueobjects.Quantity(0)
+                                )
+                        );
+
+        int updatedQty =
+                shelfStock.getQuantity().getValue()
+                        + quantity;
+
+        var updatedStock =
+                new com.sypos.domain.entities.ShelfStock(
+                        code,
+                        new com.sypos.domain.valueobjects.Quantity(updatedQty)
+                );
+
+        inventoryRepository.saveShelfStock(updatedStock);
+
+        // --- Create stock batch
+
+        var batch =
+                new com.sypos.domain.entities.StockBatch(
+                        0,
+                        code,
+                        purchaseDate,
+                        expiryDate,
+                        new com.sypos.domain.valueobjects.Quantity(quantity)
+                );
+
+        inventoryRepository.saveNewBatch(batch);
+    }
+
+    public void removeBatch(
+            long batchId,
+            String itemCode,
+            int remainingQty
+    ) {
+
+        var code =
+                new com.sypos.domain.valueobjects.ItemCode(
+                        itemCode
+                );
+
+        // --- Update shelf stock
+
+        var shelfStock =
+                inventoryRepository
+                        .findShelfStock(code)
+                        .orElseThrow();
+
+        int updatedQty =
+                shelfStock.getQuantity().getValue()
+                        - remainingQty;
+
+        if (updatedQty < 0) {
+            updatedQty = 0;
+        }
+
+        inventoryRepository.saveShelfStock(
+                new com.sypos.domain.entities.ShelfStock(
+                        code,
+                        new com.sypos.domain.valueobjects.Quantity(
+                                updatedQty
+                        )
+                )
+        );
+
+        // --- Delete batch
+
+        inventoryRepository.deleteBatch(batchId);
     }
 
     public void showDailySales(LocalDate date) {
@@ -156,7 +270,19 @@ public class PosController {
                 .orElseThrow(() -> new RuntimeException("Bill not found"));
     }
 
-    public java.util.List<com.sypos.domain.entities.Item> getAllItems() {
+    public List<Item> getAllItems() {
         return itemRepository.findAll();
     }
+
+    public List<StockBatch> getBatchesForItem(String itemCode) {
+        return inventoryRepository.findAvailableBatches(
+                new ItemCode(itemCode)
+        );
+    }
+
+    public Map<String, Integer> getAllShelfStock() {
+        return inventoryRepository.getAllShelfStock();
+    }
+
+
 }

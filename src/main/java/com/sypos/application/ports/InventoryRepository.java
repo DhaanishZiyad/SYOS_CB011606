@@ -6,6 +6,7 @@ import com.sypos.domain.valueobjects.ItemCode;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 
 public interface InventoryRepository {
 
@@ -16,4 +17,10 @@ public interface InventoryRepository {
     List<StockBatch> findAvailableBatches(ItemCode itemCode);
 
     void saveBatches(List<StockBatch> modifiedBatches);
+
+    void saveNewBatch(StockBatch batch);
+
+    void deleteBatch(long batchId);
+
+    Map<String, Integer> getAllShelfStock();
 }
