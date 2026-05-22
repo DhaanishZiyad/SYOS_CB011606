@@ -10,22 +10,36 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="976a5b72-c9f6-471f-ac71-346210a1e8ce" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/webapp/add-item.jsp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/webapp/batches.jsp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/webapp/restock.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sypos/adapters/controllers/PosController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sypos/adapters/controllers/PosController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sypos/adapters/repositories/JdbcInventoryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sypos/adapters/repositories/JdbcInventoryRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sypos/adapters/repositories/JdbcItemRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sypos/adapters/repositories/JdbcItemRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sypos/adapters/repositories/fake/FakeItemRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sypos/adapters/repositories/fake/FakeItemRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sypos/application/ports/InventoryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sypos/application/ports/InventoryRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sypos/application/ports/ItemRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sypos/application/ports/ItemRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sypos/config/ApplicationConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sypos/config/ApplicationConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sypos/infrastructure/cli/PosCliApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sypos/infrastructure/cli/PosCliApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/sypos/websocket/InventoryWebSocket.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/sypos/websocket/MetricsWebSocket.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/WEB-INF/classes/com/sypos/concurrency/CheckoutWorker.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/WEB-INF/classes/com/sypos/concurrency/CheckoutWorker.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/WEB-INF/classes/com/sypos/concurrency/SystemMetrics.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/WEB-INF/classes/com/sypos/concurrency/SystemMetrics.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/WEB-INF/classes/com/sypos/web/PosServlet.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/WEB-INF/classes/com/sypos/web/PosServlet.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/add-item.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/add-item.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/admin.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/admin.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/batches.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/batches.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/bill-details.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/bill-details.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/bills.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/bills.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/dashboard.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/dashboard.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/index.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/index.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/inventory.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/inventory.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/pos-ui.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/pos-ui.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/restock.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SYOS_CB011606_WEB_war_exploded/restock.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sypos/concurrency/CheckoutWorker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sypos/concurrency/CheckoutWorker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sypos/concurrency/SystemMetrics.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sypos/concurrency/SystemMetrics.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/sypos/web/PosServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sypos/web/PosServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/add-item.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/add-item.jsp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/webapp/admin.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/admin.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/batches.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/batches.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/bill-details.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/bill-details.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/bills.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/bills.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/dashboard.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/dashboard.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/index.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/index.jsp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/webapp/inventory.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/inventory.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/sypos/testdoubles/FakeInventoryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/sypos/testdoubles/FakeInventoryRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/sypos/testdoubles/FakeItemRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/sypos/testdoubles/FakeItemRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/pos-ui.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/pos-ui.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/restock.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/restock.jsp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -246,7 +260,8 @@
       <workItem from="1779028859543" duration="2738000" />
       <workItem from="1779099302052" duration="39645000" />
       <workItem from="1779351627557" duration="8733000" />
-      <workItem from="1779376045050" duration="3550000" />
+      <workItem from="1779376045050" duration="11077000" />
+      <workItem from="1779426210382" duration="5180000" />
     </task>
     <servers />
   </component>

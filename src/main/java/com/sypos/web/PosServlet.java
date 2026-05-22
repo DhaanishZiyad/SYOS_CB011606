@@ -4,6 +4,8 @@ import com.sypos.adapters.controllers.PosController;
 import com.sypos.config.ApplicationConfig;
 import com.sypos.domain.entities.Bill;
 import com.sypos.concurrency.SystemMetrics;
+import com.sypos.websocket.MetricsWebSocket;
+import com.sypos.websocket.InventoryWebSocket;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -22,6 +24,8 @@ public class PosServlet extends HttpServlet {
     public void init() throws ServletException {
         // Correctly assigns the controller using your ApplicationConfig
         controller = ApplicationConfig.createController();
+
+
     }
 
     @Override
@@ -41,7 +45,11 @@ public class PosServlet extends HttpServlet {
             var report = controller.generateBillReport();
 
             req.setAttribute("billReport", report);
-            req.getRequestDispatcher("bills.jsp").forward(req, resp);
+
+            req.getRequestDispatcher("bills.jsp")
+                    .forward(req, resp);
+
+            return;
         } else if ("viewBillDetails".equals(action)) {
             int serial = Integer.parseInt(req.getParameter("serial"));
 
@@ -127,6 +135,8 @@ public class PosServlet extends HttpServlet {
                         );
                 SystemMetrics.totalQueuedBills.incrementAndGet();
 
+                MetricsWebSocket.broadcast();
+
                 System.out.println(
                         "Added bill "
                                 + simulatedBill.getSerialNumber()
@@ -166,6 +176,8 @@ public class PosServlet extends HttpServlet {
                         expiryDate
                 );
 
+                InventoryWebSocket.broadcast();
+
                 resp.sendRedirect(
                         "pos?action=inventory"
                 );
@@ -192,6 +204,8 @@ public class PosServlet extends HttpServlet {
                         remainingQty
                 );
 
+                InventoryWebSocket.broadcast();
+
                 resp.sendRedirect(
                         "pos?action=viewBatches&itemCode="
                                 + itemCode
@@ -216,6 +230,8 @@ public class PosServlet extends HttpServlet {
                         name,
                         unitPrice
                 );
+
+                InventoryWebSocket.broadcast();
 
                 resp.sendRedirect(
                         "pos?action=inventory"
@@ -252,6 +268,8 @@ public class PosServlet extends HttpServlet {
                                 )
                         );
                 SystemMetrics.totalQueuedBills.incrementAndGet();
+
+                MetricsWebSocket.broadcast();
 
                 session.removeAttribute("currentBill");
 

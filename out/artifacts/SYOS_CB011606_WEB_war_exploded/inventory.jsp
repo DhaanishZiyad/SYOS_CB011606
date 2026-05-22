@@ -5,65 +5,225 @@
 <%
     List<Item> items =
             (List<Item>) request.getAttribute("items");
+
     Map<String, Integer> stockMap =
             (Map<String, Integer>)
                     request.getAttribute("stockMap");
 %>
 
 <html>
+
 <head>
+
     <title>Inventory Management</title>
 
     <style>
+
         body {
+            margin: 0;
+            padding: 40px;
             font-family: Arial, sans-serif;
-            padding: 30px;
+            background: #f4f6f9;
+            color: #333;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        .top-bar {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 25px;
+        }
+
+        .btn {
+
+            padding: 12px 18px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #2a5298;
+
+            color: white;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            text-decoration: none;
+
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #1e3c72;
         }
 
         table {
-            width: 80%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
 
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: left;
+            width: 100%;
+
+            border-collapse: collapse;
+
+            background: white;
+
+            border-radius: 15px;
+
+            overflow: hidden;
+
+            box-shadow:
+                    0 4px 12px rgba(0,0,0,0.08);
         }
 
         th {
-            background-color: #f2f2f2;
+
+            background: #2a5298;
+
+            color: white;
+
+            padding: 15px;
+
+            text-align: left;
         }
 
-        a {
-            text-decoration: none;
+        td {
+
+            padding: 15px;
+
+            border-bottom: 1px solid #eee;
         }
+
+        tr:hover {
+            background: #f9fbff;
+        }
+
+        .low-stock {
+            background-color: #ffe5e5;
+        }
+
+        .healthy-stock {
+            background-color: white;
+        }
+
+        .status-low {
+
+            color: #e74c3c;
+
+            font-weight: bold;
+        }
+
+        .status-ok {
+
+            color: #2ecc71;
+
+            font-weight: bold;
+        }
+
+        .action-buttons {
+
+            display: flex;
+
+            gap: 10px;
+
+            flex-wrap: wrap;
+        }
+
+        .small-btn {
+
+            padding: 8px 12px;
+
+            border: none;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-weight: bold;
+
+            color: white;
+        }
+
+        .restock-btn {
+            background: #27ae60;
+        }
+
+        .batch-btn {
+            background: #8e44ad;
+        }
+
+        .back-link {
+
+            display: inline-block;
+
+            margin-top: 30px;
+
+            text-decoration: none;
+
+            font-weight: bold;
+
+            color: #2a5298;
+        }
+
+        .live-indicator {
+
+            margin-bottom: 20px;
+
+            color: #27ae60;
+
+            font-weight: bold;
+        }
+
     </style>
+
 </head>
 
 <body>
 
-<h1>Inventory Viewer</h1>
+<div class="top-bar">
 
-<a href="add-item.jsp">
-    <button>
-        Add Item
-    </button>
-</a>
+    <h1>Inventory Management</h1>
+
+    <a class="btn"
+       href="add-item.jsp">
+
+        + Add Item
+
+    </a>
+
+</div>
+
+<div class="live-indicator">
+    ● Live inventory synchronization enabled
+</div>
 
 <table>
 
     <thead>
 
     <tr>
+
         <th>Item Code</th>
+
         <th>Name</th>
+
         <th>Unit Price</th>
+
         <th>Stock Qty</th>
+
         <th>Status</th>
-        <th>Action</th>
+
+        <th>Actions</th>
+
     </tr>
+
     </thead>
 
     <tbody>
@@ -71,103 +231,122 @@
     <% if (items == null || items.isEmpty()) { %>
 
     <tr>
-        <td colspan="3">
+
+        <td colspan="6">
+
             No inventory items found.
+
         </td>
+
     </tr>
 
     <% } else { %>
 
-        <% for (Item item : items) { %>
+    <% for (Item item : items) { %>
 
-        <%
-            int qty =
-                    stockMap.getOrDefault(
-                            item.getCode().getValue(),
-                            0
-                    );
+    <%
 
-            String rowColor =
-                    qty < 50
-                            ? "#ffcccc"
-                            : "white";
-        %>
+        int qty =
+                stockMap.getOrDefault(
+                        item.getCode().getValue(),
+                        0
+                );
 
-            <tr style="background-color: <%= rowColor %>;">
-                <td>
-                    <%= item.getCode().getValue() %>
-                </td>
+        String rowClass =
+                qty < 50
+                        ? "low-stock"
+                        : "healthy-stock";
 
-                <td>
-                    <%= item.getName() %>
-                </td>
+    %>
 
-                <td>
-                    <%= item.getUnitPrice().getAmount() %>
-                </td>
+    <tr class="<%= rowClass %>">
 
-                <td>
-                    <%= stockMap.getOrDefault(
-                            item.getCode().getValue(),
-                            0
-                    ) %>
-                </td>
+        <td>
+            <%= item.getCode().getValue() %>
+        </td>
 
-                <td>
+        <td>
+            <%= item.getName() %>
+        </td>
 
-                    <% if (qty < 50) { %>
+        <td>
+            Rs.
+            <%= item.getUnitPrice().getAmount() %>
+        </td>
 
-                        <strong style="color:red;">
+        <td>
+            <%= qty %>
+        </td>
+
+        <td>
+
+            <% if (qty < 50) { %>
+
+            <span class="status-low">
+
                             LOW STOCK
-                        </strong>
 
-                    <% } else { %>
-
-                        <span style="color:green;">
-                            AVAILABLE
                         </span>
 
-                    <% } %>
+            <% } else { %>
 
-                </td>
+            <span class="status-ok">
 
-                <td>
+                            AVAILABLE
 
-                    <form action="restock.jsp"
-                          method="GET">
+                        </span>
 
-                        <input type="hidden"
-                               name="itemCode"
-                               value="<%= item.getCode().getValue() %>">
+            <% } %>
 
-                        <button type="submit">
-                            Restock
-                        </button>
+        </td>
 
-                    </form>
+        <td>
 
-                    <form action="pos"
-                          method="GET"
-                          style="display:inline;">
+            <div class="action-buttons">
 
-                        <input type="hidden"
-                               name="action"
-                               value="viewBatches">
+                <form action="restock.jsp"
+                      method="GET">
 
-                        <input type="hidden"
-                               name="itemCode"
-                               value="<%= item.getCode().getValue() %>">
+                    <input type="hidden"
+                           name="itemCode"
+                           value="<%= item.getCode().getValue() %>">
 
-                        <button type="submit">
-                            View Batches
-                        </button>
+                    <button class="small-btn restock-btn"
+                            type="submit">
 
-                    </form>
+                        Restock
 
-                </td>
-            </tr>
+                    </button>
 
-        <% } %>
+                </form>
+
+                <form action="pos"
+                      method="GET">
+
+                    <input type="hidden"
+                           name="action"
+                           value="viewBatches">
+
+                    <input type="hidden"
+                           name="itemCode"
+                           value="<%= item.getCode().getValue() %>">
+
+                    <button class="small-btn batch-btn"
+                            type="submit">
+
+                        View Batches
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </td>
+
+    </tr>
+
+    <% } %>
 
     <% } %>
 
@@ -175,11 +354,30 @@
 
 </table>
 
-<br>
+<a class="back-link"
+   href="admin.jsp">
 
-<a href="admin.jsp">
     ← Back to Admin Panel
+
 </a>
 
+<script>
+
+    const inventorySocket =
+        new WebSocket(
+            "ws://"
+            + window.location.host
+            + "<%= request.getContextPath() %>"
+            + "/ws/inventory"
+        );
+
+    inventorySocket.onmessage = () => {
+
+        location.reload();
+    };
+
+</script>
+
 </body>
+
 </html>

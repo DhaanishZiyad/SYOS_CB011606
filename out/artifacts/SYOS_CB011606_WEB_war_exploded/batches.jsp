@@ -22,28 +22,131 @@
     <style>
 
         body {
+            margin: 0;
+            padding: 40px;
             font-family: Arial, sans-serif;
-            padding: 30px;
+            background: #f4f6f9;
+            color: #333;
+        }
+
+        h1 {
+            margin-bottom: 25px;
+        }
+
+        .live-indicator {
+
+            margin-bottom: 20px;
+
+            color: #27ae60;
+
+            font-weight: bold;
         }
 
         table {
-            width: 90%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
 
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: left;
+            width: 100%;
+
+            border-collapse: collapse;
+
+            background: white;
+
+            border-radius: 15px;
+
+            overflow: hidden;
+
+            box-shadow:
+                    0 4px 12px rgba(0,0,0,0.08);
         }
 
         th {
-            background-color: #f2f2f2;
+
+            background: #34495e;
+
+            color: white;
+
+            padding: 15px;
+
+            text-align: left;
         }
 
-        a {
+        td {
+
+            padding: 15px;
+
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f9fbff;
+        }
+
+        .expired {
+            background: #ffe5e5;
+        }
+
+        .near-expiry {
+            background: #fff5d6;
+        }
+
+        .healthy {
+            background: white;
+        }
+
+        .status-expired {
+
+            color: #e74c3c;
+
+            font-weight: bold;
+        }
+
+        .status-warning {
+
+            color: #f39c12;
+
+            font-weight: bold;
+        }
+
+        .status-healthy {
+
+            color: #2ecc71;
+
+            font-weight: bold;
+        }
+
+        .remove-btn {
+
+            padding: 10px 14px;
+
+            border: none;
+
+            border-radius: 6px;
+
+            background: #e74c3c;
+
+            color: white;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: background 0.2s;
+        }
+
+        .remove-btn:hover {
+            background: #c0392b;
+        }
+
+        .back-link {
+
+            display: inline-block;
+
+            margin-top: 30px;
+
             text-decoration: none;
+
+            font-weight: bold;
+
+            color: #34495e;
         }
 
     </style>
@@ -53,21 +156,34 @@
 <body>
 
 <h1>
+
     Batch Viewer -
     <%= itemCode %>
+
 </h1>
+
+<div class="live-indicator">
+    ● Live batch synchronization enabled
+</div>
 
 <table>
 
     <thead>
 
     <tr>
+
         <th>Batch ID</th>
+
         <th>Purchase Date</th>
+
         <th>Expiry Date</th>
+
         <th>Remaining Qty</th>
+
         <th>Status</th>
+
         <th>Action</th>
+
     </tr>
 
     </thead>
@@ -77,9 +193,13 @@
     <% if (batches == null || batches.isEmpty()) { %>
 
     <tr>
-        <td colspan="5">
+
+        <td colspan="6">
+
             No batches found.
+
         </td>
+
     </tr>
 
     <% } else { %>
@@ -96,15 +216,16 @@
                                 today.plusDays(30)
                         );
 
-        String rowColor =
+        String rowClass =
                 expired
-                        ? "#ffcccc"
+                        ? "expired"
                         : nearExpiry
-                        ? "#fff3cd"
-                        : "white";
+                        ? "near-expiry"
+                        : "healthy";
+
     %>
 
-    <tr style="background-color: <%= rowColor %>">
+    <tr class="<%= rowClass %>">
 
         <td>
             <%= batch.getId() %>
@@ -126,20 +247,26 @@
 
             <% if (expired) { %>
 
-            <strong style="color:red;">
-                EXPIRED
-            </strong>
+            <span class="status-expired">
+
+                        EXPIRED
+
+                    </span>
 
             <% } else if (nearExpiry) { %>
 
-            <strong style="color:orange;">
-                NEAR EXPIRY
-            </strong>
+            <span class="status-warning">
+
+                        NEAR EXPIRY
+
+                    </span>
 
             <% } else { %>
 
-            <span style="color:green;">
+            <span class="status-healthy">
+
                         HEALTHY
+
                     </span>
 
             <% } %>
@@ -167,13 +294,14 @@
                        name="remainingQty"
                        value="<%= batch.getQuantity().getValue() %>">
 
-                <button type="submit">
+                <button class="remove-btn"
+                        type="submit">
+
                     Remove Batch
+
                 </button>
 
             </form>
-
-            <% } %>
 
         </td>
 
@@ -181,15 +309,19 @@
 
     <% } %>
 
+    <% } %>
+
     </tbody>
 
 </table>
 
-<br>
+<a class="back-link"
+   href="pos?action=inventory">
 
-<a href="pos?action=inventory">
     ← Back to Inventory
+
 </a>
 
 </body>
+
 </html>

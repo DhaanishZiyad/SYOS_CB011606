@@ -1,6 +1,7 @@
 package com.sypos.concurrency;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import com.sypos.concurrency.CheckoutQueueManager;
 
 public class SystemMetrics {
 
@@ -14,5 +15,24 @@ public class SystemMetrics {
             new AtomicInteger(0);
 
     private SystemMetrics() {
+    }
+
+    public static String toJson() {
+
+        return "{"
+                + "\"queueSize\":"
+                + CheckoutQueueManager
+                .getQueue()
+                .size()
+                + ","
+
+                + "\"processedBills\":"
+                + totalProcessedBills.get()
+                + ","
+
+                + "\"queuedBills\":"
+                + totalQueuedBills.get()
+
+                + "}";
     }
 }

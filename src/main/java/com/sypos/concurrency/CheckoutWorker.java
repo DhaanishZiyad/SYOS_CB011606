@@ -2,6 +2,8 @@ package com.sypos.concurrency;
 
 import com.sypos.adapters.controllers.PosController;
 import com.sypos.concurrency.SystemMetrics;
+import com.sypos.websocket.MetricsWebSocket;
+import com.sypos.websocket.InventoryWebSocket;
 
 public class CheckoutWorker implements Runnable {
 
@@ -20,6 +22,8 @@ public class CheckoutWorker implements Runnable {
                 CheckoutTask task =
                         CheckoutQueueManager.getQueue().take();
 
+                MetricsWebSocket.broadcast();
+
                 System.out.println(
                         "[" + Thread.currentThread().getName() + "] "
                                 + "Processing bill "
@@ -28,14 +32,28 @@ public class CheckoutWorker implements Runnable {
                                 + CheckoutQueueManager.getQueue().size()
                 );
 
+                Thread.sleep(3000);
+
+                System.out.println(
+                        "Attempting checkout for bill "
+                                + task.bill().getSerialNumber()
+                );
+
                 controller.checkout(
                         task.bill(),
                         task.tendered()
                 );
 
+                InventoryWebSocket.broadcast();
+
+                System.out.println(
+                        "Checkout completed for bill "
+                                + task.bill().getSerialNumber()
+                );
+
                 SystemMetrics.totalProcessedBills.incrementAndGet();
 
-                Thread.sleep(3000);
+                MetricsWebSocket.broadcast();
 
                 System.out.println(
                         "[" + Thread.currentThread().getName() + "] "
@@ -44,6 +62,11 @@ public class CheckoutWorker implements Runnable {
                 );
 
             } catch (Exception e) {
+
+                System.out.println(
+                        "WORKER ERROR:"
+                );
+
                 e.printStackTrace();
             }
         }
